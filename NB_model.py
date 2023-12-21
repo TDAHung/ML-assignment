@@ -1,4 +1,9 @@
 import matplotlib
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.feature_selection import mutual_info_classif
 
 print("Matplotlib version:", matplotlib.__version__)
 
@@ -40,6 +45,16 @@ class_percentages = data['Outcome'].value_counts(normalize=True) * 100
 print("Value Ratio 1:", class_percentages[1])
 print("Value Ratio 0:", class_percentages[0])
 
+X = data.drop('Outcome', axis=1)
+y = data['Outcome']
+information_gain = mutual_info_classif(X, y, discrete_features=[False, False, False, False, False, False, False, False])
+ig_df = pd.DataFrame({'Feature': X.columns, 'InformationGain': information_gain})
+plt.figure(figsize=(10, 6))
+sns.barplot(x='InformationGain', y='Feature', data=ig_df, palette='viridis')
+
+plt.title('Information Gain of Features')
+plt.show()
+
 import seaborn as sns
 sns.heatmap(data.corr(),annot=True,fmt='0.2f')
 
@@ -70,30 +85,30 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score, classification_report, mean_squared_error, mean_absolute_error, r2_score
 
-# Chọn các đặc trưng và nhãn
+# Specify labels
 features = data.drop('Outcome', axis=1)
 labels = data['Outcome']
 
-# Chia dữ liệu thành tập huấn luyện và tập kiểm tra
+# Divide the data into training dataset and test dataset
 X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
 
-# Chuẩn hóa dữ liệu
+# Standardized data
 scaler = MinMaxScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
-# Xây dựng mô hình Naive Bayes
+# Build model Naive Bayes
 model = GaussianNB()
 model.fit(X_train, y_train)
 
-# Dự đoán nhãn trên tập huấn luyện
+# Predict labels on the training set
 y_train_pred = model.predict(X_train)
 
-# Dự đoán nhãn trên tập kiểm tra
+# Predict labels on the test set
 y_pred = model.predict(X_test)
 
 
-# Đánh giá mô hình
+# Evaluate Model
 # train
 accuracy_train = accuracy_score(y_train, y_train_pred)
 mse_train = mean_squared_error(y_test, y_pred)
